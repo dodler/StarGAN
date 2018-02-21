@@ -9,14 +9,12 @@ from torchvision.datasets import ImageFolder
 from PIL import Image
 
 
-class ATRDataset(Dataset):
+class CustomDataset(Dataset):
     def __init__(self, data_path, mode):
+        self.val_labels, self.val_data = self._preprocess('val')
+        self.train_labels, self.train_data = self._preprocess('train')
         self.data_path = data_path
         self.mode = mode
-
-    def preprocess(self):
-        self.train_labels, self.train_data = self._preprocess('train')
-        self.val_labels, self.val_data = self._preprocess('val')
 
     def _preprocess(self, mode):
         """

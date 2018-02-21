@@ -48,7 +48,12 @@ def main(config):
             solver.test_multi()
 
 
-if __name__ == '__main__':
+def utk_train():
+    cudnn.benchmark=True
+    utk_loader = get_loader(config.utk_image_path, None, 178, 128, 16, 'UTK', 'train')
+    solver = Solver()
+
+def get_parser():
     parser = argparse.ArgumentParser()
 
     # Model hyper-parameters
@@ -69,7 +74,7 @@ if __name__ == '__main__':
     parser.add_argument('--d_train_repeat', type=int, default=5)
 
     # Training settings
-    parser.add_argument('--dataset', type=str, default='CelebA', choices=['CelebA', 'RaFD', 'Both'])
+    parser.add_argument('--dataset', type=str, default='CelebA', choices=['Custom', 'CelebA', 'RaFD', 'Both'])
     parser.add_argument('--num_epochs', type=int, default=20)
     parser.add_argument('--num_epochs_decay', type=int, default=10)
     parser.add_argument('--num_iters', type=int, default=200000)
@@ -89,6 +94,7 @@ if __name__ == '__main__':
 
     # Path
     parser.add_argument('--celebA_image_path', type=str, default='./data/CelebA_nocrop/images')
+    parser.add_argument('--utk_image_path', type=str, default='/home/dev/ todo fill me')
     parser.add_argument('--rafd_image_path', type=str, default='./data/RaFD/train')
     parser.add_argument('--metadata_path', type=str, default='./data/list_attr_celeba.txt')
     parser.add_argument('--log_path', type=str, default='./stargan/logs')
@@ -101,6 +107,9 @@ if __name__ == '__main__':
     parser.add_argument('--sample_step', type=int, default=500)
     parser.add_argument('--model_save_step', type=int, default=1000)
 
-    config = parser.parse_args()
+if __name__ == '__main__':
+
+
+    config = get_parser().parse_args()
     print(config)
     main(config)

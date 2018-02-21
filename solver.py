@@ -16,10 +16,15 @@ from PIL import Image
 
 class Solver(object):
 
+    def add_utk(self, utk_loader):
+        self.utk_loader = utk_loader
+
+
     def __init__(self, celebA_loader, rafd_loader, config):
         # Data loader
         self.celebA_loader = celebA_loader
         self.rafd_loader = rafd_loader
+        self.utk_loader = None
 
         # Model hyper-parameters
         self.c_dim = config.c_dim
@@ -277,9 +282,9 @@ class Solver(object):
                     accuracies = self.compute_accuracy(out_cls, real_label, self.dataset)
                     log = ["{:.2f}".format(acc) for acc in accuracies.data.cpu().numpy()]
                     if self.dataset == 'CelebA':
-                        print('Classification Acc (Black/Blond/Brown/Gender/Aged): ', end='')
+                        print('Classification Acc (Black/Blond/Brown/Gender/Aged): ', '')
                     else:
-                        print('Classification Acc (8 emotional expressions): ', end='')
+                        print('Classification Acc (8 emotional expressions): ', '')
                     print(log)
 
                 # Compute loss with fake images
@@ -504,11 +509,11 @@ class Solver(object):
             if (i+1) % self.log_step == 0:
                 accuracies = self.compute_accuracy(out_cls1, real_label1, 'CelebA')
                 log = ["{:.2f}".format(acc) for acc in accuracies.data.cpu().numpy()]
-                print('Classification Acc (Black/Blond/Brown/Gender/Aged): ', end='')
+                print('Classification Acc (Black/Blond/Brown/Gender/Aged): ', '')
                 print(log)
                 accuracies = self.compute_accuracy(out_cls2, real_label2, 'RaFD')
                 log = ["{:.2f}".format(acc) for acc in accuracies.data.cpu().numpy()]
-                print('Classification Acc (8 emotional expressions): ', end='')
+                print('Classification Acc (8 emotional expressions): ', '')
                 print(log)
 
             # Fake images (CelebA)
