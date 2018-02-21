@@ -1,11 +1,54 @@
 import torch
 import os
+import os.path as osp
 import random
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from PIL import Image
+
+
+class ATRDataset(Dataset):
+    def __init__(self, data_path, mode):
+        self.data_path = data_path
+        self.mode = mode
+
+    def preprocess(self):
+        self.train_labels, self.train_data = self._preprocess('train')
+        self.val_labels, self.val_data = self._preprocess('val')
+
+    def _preprocess(self, mode):
+        """
+        :param mode: train or test
+        :return:
+        """
+        classes = os.listdir(osp.join(self.data_path, mode))
+        labels = []
+        paths = []
+
+        for cls in classes:
+            for img_p in os.listdir(self.data_path, mode, cls):
+                labels.append(cls)
+                paths.append(img_p)
+
+        return labels, paths
+
+    def __len__(self):
+        if self.mode == 'train':
+            return len(self.train_labels)
+
+        return len(self.val_labels)
+
+    def __getitem__(self, item):
+        if self.mode == 'train':
+            image = Image.open(osp.join(self.data_path, 'train', self.train_data[item]))
+            label = self.train_labels[item]
+        if self.mode == 'validate':
+            image = Image.open(osp.join(self.data_path, 'val', self.val_data[item]))
+            label = self.val_labels[item]
+
+        return self.transform(image, torch.FloatTensor(label))
 
 
 class CelebDataset(Dataset):
@@ -41,7 +84,7 @@ class CelebDataset(Dataset):
         self.test_labels = []
 
         lines = self.lines[2:]
-        random.shuffle(lines)   # random shuffling
+        random.shuffle(lines)  # random shuffling
         for i, line in enumerate(lines):
 
             splits = line.split()
@@ -58,7 +101,7 @@ class CelebDataset(Dataset):
                     else:
                         label.append(0)
 
-            if (i+1) < 2000:
+            if (i + 1) < 2000:
                 self.test_filenames.append(filename)
                 self.test_labels.append(label)
             else:
