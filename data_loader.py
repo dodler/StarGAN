@@ -12,7 +12,7 @@ from PIL import Image
 class CustomDataset(Dataset):
     def __init__(self, data_path, mode):
         self.data_path = data_path
-        self.val_labels, self.val_data = self._preprocess('val')
+  #      self.val_labels, self.val_data = self._preprocess('val')
         self.train_labels, self.train_data = self._preprocess('train')
         self.mode = mode
 
@@ -26,7 +26,7 @@ class CustomDataset(Dataset):
         paths = []
 
         for cls in classes:
-            for img_p in os.listdir(self.data_path, mode, cls):
+            for img_p in os.listdir(osp.join(self.data_path, mode, cls)):
                 labels.append(cls)
                 paths.append(img_p)
 

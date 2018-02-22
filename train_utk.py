@@ -7,7 +7,7 @@ from PIL import Image
 crop_size = 178
 image_size = 128
 
-path = ''
+path = '/home/dev/Documents/src/recognition/data/UTKFace/aligned_split_cls/'
 
 mode_train = 'train'
 mode_val = 'val'
