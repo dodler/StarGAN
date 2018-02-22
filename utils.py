@@ -1,4 +1,6 @@
 from torchvision import transforms
+from PIL import Image
+
 
 def get_transform_by(mode, crop_size, image_size):
     if mode == 'train':
