@@ -1,6 +1,7 @@
 from data_loader import CustomDataset
 from torchvision.transforms import *
 from torch.utils.data import DataLoader
+from custom_solver import CustomSolver
 
 from PIL import Image
 
@@ -24,3 +25,7 @@ transform = Compose([(
 )])
 
 loader = DataLoader(dataset=ds, batch_size=bsize, shuffle=False)
+
+solver = CustomSolver(loader)
+
+solver.train()
