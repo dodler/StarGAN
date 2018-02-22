@@ -40,11 +40,11 @@ class CustomDataset(Dataset):
 
     def __getitem__(self, item):
         if self.mode == 'train':
-            image = Image.open(osp.join(self.data_path, 'train', self.train_data[item]))
             label = self.train_labels[item]
+            image = Image.open(osp.join(self.data_path, 'train', str(label),self.train_data[item]))
         if self.mode == 'validate':
-            image = Image.open(osp.join(self.data_path, 'val', self.val_data[item]))
             label = self.val_labels[item]
+            image = Image.open(osp.join(self.data_path, 'val', str(label),self.val_data[item]))
 
         return self.transform(image, torch.FloatTensor(label))
 

@@ -7,6 +7,10 @@ from custom_solver import CustomSolver
 
 from PIL import Image
 
+
+def str2bool(v):
+    return v.lower() in ('true')
+
 def get_parser():
     parser = argparse.ArgumentParser()
 
@@ -61,11 +65,13 @@ def get_parser():
     parser.add_argument('--sample_step', type=int, default=500)
     parser.add_argument('--model_save_step', type=int, default=1000)
 
+    return parser
+
 
 crop_size = 178
 image_size = 128
 
-path = '/home/dev/Documents/src/recognition/data/UTKFace/aligned_split_cls/'
+path = '/home/ubuntu/recognition/data/UTKFace/aligned_split_cls/'
 
 mode_train = 'train'
 mode_val = 'val'
@@ -85,6 +91,6 @@ loader = DataLoader(dataset=ds, batch_size=bsize, shuffle=False)
 
 
 
-solver = CustomSolver(loader, get_parser())
+solver = CustomSolver(loader, get_parser().parse_args())
 
 solver.train()
