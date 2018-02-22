@@ -10,25 +10,12 @@ from PIL import Image
 
 
 class CustomDataset(Dataset):
-    def __init__(self, data_path, mode,crop_size, image_size):
+    def __init__(self, data_path, mode,transform):
+        self.transform = transform
         self.data_path = data_path
         self.val_labels, self.val_data = self._preprocess('val')
         self.train_labels, self.train_data = self._preprocess('train')
         self.mode = mode
-
-        if mode == 'train':
-            transform = transforms.Compose([
-                transforms.CenterCrop(crop_size),
-                transforms.Resize(image_size, interpolation=Image.ANTIALIAS),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-        else:
-            transform = transforms.Compose([
-                transforms.CenterCrop(crop_size),
-                transforms.Scale(image_size, interpolation=Image.ANTIALIAS),
-                transforms.ToTensor(),
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
     def _preprocess(self, mode):
         """

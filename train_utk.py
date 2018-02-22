@@ -7,6 +7,7 @@ from custom_solver import CustomSolver
 
 from PIL import Image
 
+from utils import get_transform_by
 
 def str2bool(v):
     return v.lower() in ('true')
@@ -78,18 +79,10 @@ mode_val = 'val'
 
 bsize = 16
 
-ds = CustomDataset(path, mode_train)
-
-transform = Compose([(
-    CenterCrop((crop_size, crop_size)),
-    Resize((image_size, image_size), interpolation=Image.ANTIALIAS),
-    RandomHorizontalFlip(),
-    Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-)])
-
+active_mode = mode_train
+transform = get_transform_by(active_mode,crop_size, image_size)
+ds = CustomDataset(path, active_mode, transform)
 loader = DataLoader(dataset=ds, batch_size=bsize, shuffle=False)
-
-
 
 solver = CustomSolver(loader, get_parser().parse_args())
 
