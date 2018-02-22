@@ -1,16 +1,15 @@
 import argparse
 
-from data_loader import CustomDataset
-from torchvision.transforms import *
 from torch.utils.data import DataLoader
+
 from custom_solver import CustomSolver
-
-from PIL import Image
-
+from data_loader import CustomDataset
 from utils import get_transform_by
+
 
 def str2bool(v):
     return v.lower() in ('true')
+
 
 def get_parser():
     parser = argparse.ArgumentParser()
@@ -80,7 +79,7 @@ mode_val = 'val'
 bsize = 4
 
 active_mode = mode_train
-transform = get_transform_by(active_mode,crop_size, image_size)
+transform = get_transform_by(active_mode, crop_size, image_size)
 ds = CustomDataset(path, active_mode, transform)
 loader = DataLoader(dataset=ds, batch_size=bsize, shuffle=False)
 

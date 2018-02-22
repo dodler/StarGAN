@@ -165,6 +165,7 @@ class CustomSolver(object):
         for i, (images, labels) in enumerate(self.data_loader):
             fixed_x.append(images)
             real_c.append(labels)
+            print(len(images),len(labels))
             if i == 3:
                 break
 
