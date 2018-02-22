@@ -11,7 +11,7 @@ def get_transform_by(mode, crop_size, image_size):
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     else:
-        transform = git transforms.Compose([
+        transform = transforms.Compose([
             transforms.CenterCrop(crop_size),
             transforms.Scale(image_size, interpolation=Image.ANTIALIAS),
             transforms.ToTensor(),

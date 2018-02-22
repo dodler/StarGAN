@@ -77,7 +77,7 @@ path = '/home/ubuntu/recognition/data/UTKFace/aligned_split_cls/'
 mode_train = 'train'
 mode_val = 'val'
 
-bsize = 16
+bsize = 4
 
 active_mode = mode_train
 transform = get_transform_by(active_mode,crop_size, image_size)

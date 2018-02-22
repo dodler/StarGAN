@@ -47,7 +47,9 @@ class CustomDataset(Dataset):
             label = self.val_labels[item]
             image = Image.open(osp.join(self.data_path, 'val', str(label),self.val_data[item]))
 
-        return self.transform(image),torch.FloatTensor(label)
+        print(label,image.size)
+
+        return self.transform(image), torch.FloatTensor(label)
 
 
 class CelebDataset(Dataset):
