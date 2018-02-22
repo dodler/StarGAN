@@ -155,34 +155,21 @@ class CustomSolver(object):
         return out
 
     def train(self):
-        """Train StarGAN within a single dataset."""
+        """Training gan with dataset splitted by folders:
+        root:
+            train:
+                cls_0:
+                ...
+                cls_n-1:
+            val:
+                cls_0:
+                ...
+                cls_n-1
+        """
 
         # The number of iterations per epoch
         iters_per_epoch = len(self.data_loader)
-        """
-        fixed_x = []
-        real_c = []
-        for i, (images, labels) in enumerate(self.data_loader):
-            fixed_x.append(images)
-            real_c.append(labels)
-            print(len(images),len(labels))
-            if i == 3:
-                break
 
-        # Fixed inputs and target domain labels for debugging
-        fixed_x = torch.cat(fixed_x, dim=0)
-        fixed_x = self.to_var(fixed_x, volatile=True)
-        real_c = torch.cat(real_c, dim=0)
-
-        if self.dataset == 'CelebA':
-            fixed_c_list = self.make_celeb_labels(real_c)
-        elif self.dataset == 'RaFD':
-            fixed_c_list = []
-            for i in range(self.c_dim):
-                fixed_c = self.one_hot(torch.ones(fixed_x.size(0)) * i, self.c_dim)
-                fixed_c_list.append(self.to_var(fixed_c, volatile=True))
-
-        """
         # lr cache for decaying
         g_lr = self.g_lr
         d_lr = self.d_lr
@@ -202,12 +189,8 @@ class CustomSolver(object):
                 rand_idx = torch.randperm(real_label.size(0))
                 fake_label = real_label[rand_idx]
 
-                if self.dataset == 'CelebA':
-                    real_c = real_label.clone()
-                    fake_c = fake_label.clone()
-                else:
-                    real_c = self.one_hot(real_label, self.c_dim)
-                    fake_c = self.one_hot(fake_label, self.c_dim)
+                real_c = self.one_hot(real_label, self.c_dim)
+                fake_c = self.one_hot(fake_label, self.c_dim)
 
                 # Convert tensor to variable
                 real_x = self.to_var(real_x)
@@ -222,20 +205,13 @@ class CustomSolver(object):
                 out_src, out_cls = self.D(real_x)
                 d_loss_real = - torch.mean(out_src)
 
-                if self.dataset == 'CelebA':
-                    d_loss_cls = F.binary_cross_entropy_with_logits(
-                        out_cls, real_label, size_average=False) / real_x.size(0)
-                else:
-                    d_loss_cls = F.cross_entropy(out_cls, real_label)
+                d_loss_cls = F.cross_entropy(out_cls, real_label)
 
                 # Compute classification accuracy of the discriminator
                 if (i + 1) % self.log_step == 0:
                     accuracies = self.compute_accuracy(out_cls, real_label, self.dataset)
                     log = ["{:.2f}".format(acc) for acc in accuracies.data.cpu().numpy()]
-                    if self.dataset == 'CelebA':
-                        print('Classification Acc (Black/Blond/Brown/Gender/Aged): ', '')
-                    else:
-                        print('Classification Acc (8 emotional expressions): ', '')
+                    print('Classification Acc (8 emotional expressions): ', '')
                     print(log)
 
                 # Compute loss with fake images
@@ -281,7 +257,6 @@ class CustomSolver(object):
 
                 # ================== Train G ================== #
                 if (i + 1) % self.d_train_repeat == 0:
-
                     # Original-to-target and target-to-original domain
                     fake_x = self.G(real_x, fake_c)
                     rec_x = self.G(fake_x, real_c)
@@ -291,11 +266,7 @@ class CustomSolver(object):
                     g_loss_fake = - torch.mean(out_src)
                     g_loss_rec = torch.mean(torch.abs(real_x - rec_x))
 
-                    if self.dataset == 'CelebA':
-                        g_loss_cls = F.binary_cross_entropy_with_logits(
-                            out_cls, fake_label, size_average=False) / fake_x.size(0)
-                    else:
-                        g_loss_cls = F.cross_entropy(out_cls, fake_label)
+                    g_loss_cls = F.cross_entropy(out_cls, fake_label)
 
                     # Backward + Optimize
                     g_loss = g_loss_fake + self.lambda_rec * g_loss_rec + self.lambda_cls * g_loss_cls
@@ -323,16 +294,16 @@ class CustomSolver(object):
                     if self.use_tensorboard:
                         for tag, value in loss.items():
                             self.logger.scalar_summary(tag, value, e * iters_per_epoch + i + 1)
-
-                # Translate fixed images for debugging
-                if (i + 1) % self.sample_step == 0:
-                    fake_image_list = [fixed_x]
-                    for fixed_c in fixed_c_list:
-                        fake_image_list.append(self.G(fixed_x, fixed_c))
-                    fake_images = torch.cat(fake_image_list, dim=3)
-                    save_image(self.denorm(fake_images.data.cpu()),
-                               os.path.join(self.sample_path, '{}_{}_fake.png'.format(e + 1, i + 1)), nrow=1, padding=0)
-                    print('Translated images and saved into {}..!'.format(self.sample_path))
+                #
+                # # Translate fixed images for debugging
+                # if (i + 1) % self.sample_step == 0:
+                #     fake_image_list = [fixed_x]
+                #     for fixed_c in fixed_c_list:
+                #         fake_image_list.append(self.G(fixed_x, fixed_c))
+                #     fake_images = torch.cat(fake_image_list, dim=3)
+                #     save_image(self.denorm(fake_images.data.cpu()),
+                #                os.path.join(self.sample_path, '{}_{}_fake.png'.format(e + 1, i + 1)), nrow=1, padding=0)
+                #     print('Translated images and saved into {}..!'.format(self.sample_path))
 
                 # Save model checkpoints
                 if (i + 1) % self.model_save_step == 0:
@@ -348,7 +319,6 @@ class CustomSolver(object):
                 self.update_lr(g_lr, d_lr)
                 print ('Decay learning rate to g_lr: {}, d_lr: {}.'.format(g_lr, d_lr))
 
-
     def test(self):
         """Facial attribute transfer on CelebA or facial expression synthesis on RaFD."""
         # Load trained parameters
@@ -356,21 +326,13 @@ class CustomSolver(object):
         self.G.load_state_dict(torch.load(G_path))
         self.G.eval()
 
-        if self.dataset == 'CelebA':
-            data_loader = self.celebA_loader
-        else:
-            data_loader = self.rafd_loader
-
-        for i, (real_x, org_c) in enumerate(data_loader):
+        for i, (real_x, org_c) in enumerate(self.data_loader):
             real_x = self.to_var(real_x, volatile=True)
 
-            if self.dataset == 'CelebA':
-                target_c_list = self.make_celeb_labels(org_c)
-            else:
-                target_c_list = []
-                for j in range(self.c_dim):
-                    target_c = self.one_hot(torch.ones(real_x.size(0)) * j, self.c_dim)
-                    target_c_list.append(self.to_var(target_c, volatile=True))
+            target_c_list = []
+            for j in range(self.c_dim):
+                target_c = self.one_hot(torch.ones(real_x.size(0)) * j, self.c_dim)
+                target_c_list.append(self.to_var(target_c, volatile=True))
 
             # Start translations
             fake_image_list = [real_x]
