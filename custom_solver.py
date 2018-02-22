@@ -159,7 +159,7 @@ class CustomSolver(object):
 
         # The number of iterations per epoch
         iters_per_epoch = len(self.data_loader)
-
+        """
         fixed_x = []
         real_c = []
         for i, (images, labels) in enumerate(self.data_loader):
@@ -182,6 +182,7 @@ class CustomSolver(object):
                 fixed_c = self.one_hot(torch.ones(fixed_x.size(0)) * i, self.c_dim)
                 fixed_c_list.append(self.to_var(fixed_c, volatile=True))
 
+        """
         # lr cache for decaying
         g_lr = self.g_lr
         d_lr = self.d_lr
