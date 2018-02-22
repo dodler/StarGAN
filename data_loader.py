@@ -12,7 +12,7 @@ from PIL import Image
 class CustomDataset(Dataset):
     def __init__(self, data_path, mode):
         self.data_path = data_path
-  #      self.val_labels, self.val_data = self._preprocess('val')
+        self.val_labels, self.val_data = self._preprocess('val')
         self.train_labels, self.train_data = self._preprocess('train')
         self.mode = mode
 
@@ -46,7 +46,7 @@ class CustomDataset(Dataset):
             label = self.val_labels[item]
             image = Image.open(osp.join(self.data_path, 'val', str(label),self.val_data[item]))
 
-        return self.transform(image, torch.FloatTensor(label))
+        return self.transform(image),torch.FloatTensor(label)
 
 
 class CelebDataset(Dataset):
