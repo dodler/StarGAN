@@ -11,9 +11,9 @@ from PIL import Image
 
 class CustomDataset(Dataset):
     def __init__(self, data_path, mode):
+        self.data_path = data_path
         self.val_labels, self.val_data = self._preprocess('val')
         self.train_labels, self.train_data = self._preprocess('train')
-        self.data_path = data_path
         self.mode = mode
 
     def _preprocess(self, mode):
