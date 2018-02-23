@@ -136,15 +136,10 @@ class CustomSolver(object):
         return x
 
     def compute_accuracy(self, x, y, dataset):
-        if dataset == 'CelebA':
-            x = F.sigmoid(x)
-            predicted = self.threshold(x)
-            correct = (predicted == y).float()
-            accuracy = torch.mean(correct, dim=0) * 100.0
-        else:
-            _, predicted = torch.max(x, dim=1)
-            correct = (predicted == y).float()
-            accuracy = torch.mean(correct) * 100.0
+        _, predicted = torch.max(x, dim=1)
+        correct = (predicted == y).long()
+#        print(x,y,correct)
+        accuracy = len(correct)/len(y) * 100.0
         return accuracy
 
     def one_hot(self, labels, dim):
@@ -205,14 +200,15 @@ class CustomSolver(object):
                 out_src, out_cls = self.D(real_x)
                 d_loss_real = - torch.mean(out_src)
 
-                d_loss_cls = F.cross_entropy(out_cls, real_label)
+#                print(out_cls, real_label)
+                d_loss_cls = F.cross_entropy(out_cls, real_label.view(-1))
 
                 # Compute classification accuracy of the discriminator
                 if (i + 1) % self.log_step == 0:
                     accuracies = self.compute_accuracy(out_cls, real_label, self.dataset)
-                    log = ["{:.2f}".format(acc) for acc in accuracies.data.cpu().numpy()]
-                    print('Classification Acc (8 emotional expressions): ', '')
-                    print(log)
+#                    log = ["{:.2f}".format(acc) for acc in accuracies]
+#                    print('Classification Acc (8 emotional expressions): ', '')
+                    print('accuracies',accuracies)
 
                 # Compute loss with fake images
                 fake_x = self.G(real_x, fake_c)
@@ -266,7 +262,7 @@ class CustomSolver(object):
                     g_loss_fake = - torch.mean(out_src)
                     g_loss_rec = torch.mean(torch.abs(real_x - rec_x))
 
-                    g_loss_cls = F.cross_entropy(out_cls, fake_label)
+                    g_loss_cls = F.cross_entropy(out_cls, fake_label.view(-1))
 
                     # Backward + Optimize
                     g_loss = g_loss_fake + self.lambda_rec * g_loss_rec + self.lambda_cls * g_loss_cls

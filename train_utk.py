@@ -56,7 +56,7 @@ def get_parser():
     parser.add_argument('--rafd_image_path', type=str, default='./data/RaFD/train')
     parser.add_argument('--metadata_path', type=str, default='./data/list_attr_celeba.txt')
     parser.add_argument('--log_path', type=str, default='./stargan/logs')
-    parser.add_argument('--model_save_path', type=str, default='./stargan/models')
+    parser.add_argument('--model_save_path', type=str, default='models')
     parser.add_argument('--sample_path', type=str, default='./stargan/samples')
     parser.add_argument('--result_path', type=str, default='./stargan/results')
 

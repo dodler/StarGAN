@@ -25,10 +25,11 @@ class CustomDataset(Dataset):
         classes = os.listdir(osp.join(self.data_path, mode))
         labels = []
         paths = []
+        self.cls = classes
 
-        for cls in classes:
+        for i,cls in enumerate(classes):
             for img_p in os.listdir(osp.join(self.data_path, mode, cls)):
-                labels.append(cls)
+                labels.append([i])
                 paths.append(img_p)
 
         return labels, paths
@@ -42,14 +43,14 @@ class CustomDataset(Dataset):
     def __getitem__(self, item):
         if self.mode == 'train':
             label = self.train_labels[item]
-            image = Image.open(osp.join(self.data_path, 'train', str(label),self.train_data[item]))
+            image = Image.open(osp.join(self.data_path, 'train', self.cls[label[0]],self.train_data[item]))
         if self.mode == 'validate':
             label = self.val_labels[item]
-            image = Image.open(osp.join(self.data_path, 'val', str(label),self.val_data[item]))
+            image = Image.open(osp.join(self.data_path, 'val', self.cls[label[0]],self.val_data[item]))
 
-        print(label,image.size)
+#        print(label,image.size)
 
-        return self.transform(image), torch.FloatTensor(label)
+        return self.transform(image), torch.LongTensor(label)
 
 
 class CelebDataset(Dataset):
